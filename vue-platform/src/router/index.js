@@ -19,6 +19,12 @@ export default new Router({
       component: ()=>import('@/views/login'),
     },
     {
+      path: '/changePwd',
+      name: 'changePwd',
+      meta:{title:'管理平台-修改密码'},
+      component: ()=>import('@/views/system/changePwd'),
+    },
+    {
       path: '/layout',
       name: 'layout',
       meta: {

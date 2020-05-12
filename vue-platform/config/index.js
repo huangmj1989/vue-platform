@@ -11,10 +11,13 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/apis': { 
+      '/apis': {
         // target: 'http://10.8.0.245:33333/ecp-web-manage/',
-        target: 'http://10.8.0.241:8080/ecp-web-getway/',
-        
+        //测试
+          target: 'http://10.8.0.245:35555/ecp-web-getway/',//开发环境接口
+        //测试
+      //  target: 'http://192.168.11.173:8080/ecp-web-getway/',//测试环境接口
+
         // secure: false,  // 如果是https接口，需要配置这个参数
         changeOrigin: true,  //是否跨域
         pathRewrite: {
@@ -25,13 +28,13 @@ module.exports = {
 
     // Various Dev Server settings
     host: '0.0.0.0', // can be overwritten by process.env.HOST
-    port: 8090, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    port: 8091, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
+
     /**
      * Source Maps
      */
@@ -54,7 +57,9 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    // assetsPublicPath: '/',
+    assetsPublicPath: '/ecp-web-getway/',
+
 
     /**
      * Source Maps

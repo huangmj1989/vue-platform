@@ -20,3 +20,6 @@ npm run build --report
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+## Build production tips
+**生产环境打包部署下，要部署在tomcat二级目录下，目录名称要跟config/index.js 下的配置 assetsPublicPath=/ecp-chnl-web/ 参数保持一致**

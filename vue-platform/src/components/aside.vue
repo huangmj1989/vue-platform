@@ -1,6 +1,6 @@
 <template>
     <div class="left-aside-wrap">
-        <el-menu :default-active="$route.path" class="el-menu-vertical-demo"
+        <el-menu :default-active="$route.path" class="el-menu-vertical-demo aside-menu-container"
         mode="vertical"
         :show-timeout="200"
         :unique-opened="false"
@@ -200,7 +200,7 @@ export default {
 <style lang="less">
 
     .el-menu-vertical-demo:not(.el-menu--collapse) {
-        width: 250px;
+        width: 220px;
         position: fixed;
         top: 60px;
         left: 0;
@@ -217,49 +217,78 @@ export default {
         top: 60px;
         z-index: 55;
     }
-    .el-menu{
-        height: 100%;
-        border-right: none !important;
-    }
-    .el-submenu__title{
-        font-size: 16px;
-    }
-    .el-submenu i.iconfont{
-        color: #4e9ec5;
-        font-size: 20px;
-        vertical-align: sub;
-    }
-    .el-menu-item{
-        a{
-            color: #4e9ec5;
-            font-size: 16px;
-            display: inline-block;
-            width: 100%;
+    // .left-aside-wrap{
+        .el-menu{
             height: 100%;
-            padding: 10px 0;
+            border-right: none !important;
         }
-        height: auto !important;
-        line-height: initial !important;
-        white-space: normal !important;
-        // padding-top: 10px !important;
-        // padding-bottom: 10px !important;
-    }
-    .el-menu-item.is-active{
-        background-color: #4e9ec5;
-        a{
-            color: #fff;
+        .el-submenu__title{
             font-size: 16px;
+            span{
+                font-size: 16px;
+            }
         }
-        i.iconfont{
+        .el-submenu i.iconfont{
+            color: #4e9ec5;
+            font-size: 20px;
+            vertical-align: sub;
+        }
+        .el-menu-item{
+            a{
+                color: #4e9ec5 !important;
+                font-size: 16px;
+                display: inline-block;
+                width: 100%;
+                height: 100%;
+                padding: 10px 0;
+            }
+            height: auto !important;
+            line-height: initial !important;
+            white-space: normal !important;
+            // padding-top: 10px !important;
+            // padding-bottom: 10px !important;
+        }
+        .el-menu-item.is-active{
+            background-color: #4e9ec5;
+            a{
+                color: #fff !important;
+                font-size: 16px;
+            }
+            i.iconfont{
+                color: #fff;
+            }
+        }
+        .el-menu-item:focus, .el-menu-item:hover{
+            background-color: #4e9ec5 !important;
+            color: #fff !important;
+            a{
+                color: #fff !important;
+                font-size: 16px;
+            }
+            i.iconfont{
+                color: #fff;
+            }
+        }
+
+        .el-menu--vertical .el-menu-item i.iconfont{
+            color: #4e9ec5;
+            font-size: 20px;
+            vertical-align: sub;
+        }
+        .el-menu--vertical .el-menu-item.is-active i.iconfont{
             color: #fff;
         }
-    }
-    .el-menu--vertical .el-menu-item i.iconfont{
-        color: #4e9ec5;
-        font-size: 20px;
-        vertical-align: sub;
-    }
-    .el-menu--vertical .el-menu-item.is-active i.iconfont{
-        color: #fff;
-    }
+        .el-menu--vertical .el-menu-item:focus, .el-menu--vertical .el-menu-item:hover{
+            background-color: #4e9ec5 !important;
+            color: #fff !important;
+            a{
+                color: #fff !important;
+                font-size: 16px;
+            }
+            i.iconfont{
+                color: #fff;
+            }
+        }
+    // }
+    
 </style>

@@ -3,7 +3,7 @@
     v-loading="fullscreenLoading"
     element-loading-text="加载中..."
     element-loading-spinner="el-icon-loading"
-    element-loading-background="rgba(255, 255, 255, .5)">
+    element-loading-background="rgba(255, 255, 255, .4)">
         <div class="channel_container">
             <div class="channel_tree_wrap">
                <div class="tree_container">
@@ -46,32 +46,23 @@
                             <!-- 数据区域 -->
                             <!-- 查询区域 -->
                             <div class="module_query_form">
-                                <el-form :inline="true" label-width="85px" size="small" :model="activationForm" class="activationForm-form-inline" ref="activationForm">
+                                <el-form :inline="true" label-width="120px" size="small"  :rules="ruleschannel"  :model="activationForm" class="activationForm-form-inline" ref="activationForm">
                                     <!-- :rules="[
                                         { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
                                     ]" -->
-                                    <el-form-item label="激活码：" prop="activeCode" >
-                                        <el-input v-model="activationForm.activeCode" placeholder="输入激活码" clearable></el-input>
+                                    <el-form-item label="激活码：" prop="activeCode">
+                                        <el-input v-model="activationForm.activeCode" placeholder="输入激活码" clearable maxlength="16"></el-input>
                                     </el-form-item>
-                                    <el-form-item label="批次编号：" prop="batchId" >
-                                        <el-input v-model="activationForm.batchId" placeholder="输入批次编号" clearable></el-input>
+                                    <el-form-item label="批次编号：" prop="batchId">
+                                        <el-input v-model="activationForm.batchId" placeholder="输入批次编号" clearable maxlength="6"></el-input>
                                     </el-form-item>
-                                    <el-form-item label="序列号：" prop="id">
-                                        <el-input v-model="activationForm.id" placeholder="输入序列号" clearable></el-input>
+                                    <el-form-item label="序列号：" prop="codeNo">
+                                        <el-input v-model="activationForm.codeNo" placeholder="输入序列号" clearable maxlength="16"></el-input>
                                     </el-form-item>
                                     <el-form-item label="产品：" prop="proCode">
                                         <el-select v-model="activationForm.proCode" placeholder="选择产品" clearable>
                                            <el-option v-for="item in productionList" :key="item.proCode" :label="item.proName" :value="item.proCode"></el-option>
                                         </el-select>
-                                    </el-form-item>
-                                    <el-form-item label="开始时间：" prop="activeTimeStart">
-                                        <!-- <el-date-picker type="date" placeholder="选择日期" v-model="activationForm.start"></el-date-picker> -->
-                                        <el-date-picker v-model="activationForm.activeTimeStart" value-format="yyyy-MM-dd hh:mm:ss"
-                                        format="yyyy-MM-dd hh:mm:ss" type="datetime" placeholder="选择日期时间"></el-date-picker>
-                                    </el-form-item>
-                                    <el-form-item label="结束时间：" prop="activeTimeEnd">
-                                        <el-date-picker v-model="activationForm.activeTimeEnd" value-format="yyyy-MM-dd hh:mm:ss"
-                                        format="yyyy-MM-dd hh:mm:ss" type="datetime" placeholder="选择日期时间"></el-date-picker>
                                     </el-form-item>
                                     <el-form-item label="激活状态：" prop="status">
                                         <el-select v-model="activationForm.status" placeholder="选择激活状态" clearable>
@@ -100,14 +91,39 @@
                                         :props="{ checkStrictly: true,value:'id',label:'chnlName' }"
                                         clearable @change="getBindChnl"></el-cascader>
                                     </el-form-item>
+                                    <!-- <el-form-item label="激活时间(开始)：" prop="activeTimeStart"> -->
+                                        <!-- <el-date-picker type="date" placeholder="选择日期" v-model="activationForm.activeTimeStart" value-format="yyyy-MM-dd" format="yyyy-MM-dd"></el-date-picker> -->
+                                        <!-- <el-date-picker v-model="activationForm.activeTimeStart" value-format="yyyy-MM-dd HH:mm:ss"
+                                        format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="选择激活开始时间"></el-date-picker> -->
+                                    <!-- </el-form-item> -->
+                                    <!-- <el-form-item label="激活时间(截止)：" prop="activeTimeEnd"> -->
+                                        <!-- <el-date-picker type="date" placeholder="选择日期" v-model="activationForm.activeTimeEnd" value-format="yyyy-MM-dd" format="yyyy-MM-dd"></el-date-picker> -->
+                                        <!-- <el-date-picker v-model="activationForm.activeTimeEnd" value-format="yyyy-MM-dd HH:mm:ss"
+                                        format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="选择激活截止时间"></el-date-picker> -->
+                                    <!-- </el-form-item> -->
+                                    <el-form-item label="激活时间：" prop="activeTimeRange">
+                                        <el-date-picker
+                                        v-model="activationForm.activeTimeRange"
+                                        type="datetimerange"
+                                        range-separator="至"
+                                        format="yyyy-MM-dd HH:mm:ss"
+                                        value-format="yyyy-MM-dd HH:mm:ss"
+                                        @change="changeTimeRange"
+                                        :picker-options="activeTimeOptions"
+                                        start-placeholder="开始日期"
+                                        end-placeholder="截止日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                    
                                     <el-form-item class="queryBtn_wrap">
-                                        <el-button type="primary" plain size="small" class="exportBtn" @click="exportActivationForm('activationForm')" icon="el-icon-upload2">导出</el-button>
+                                        <el-button type="primary" plain size="small" class="exportBtn" @click="exportActivationForm('activationForm')" icon="el-icon-upload2">批量导出</el-button>
                                         <div class="all_msg_show">
                                             <p>
-                                                总数量：<span>{{activeCodeList.all ? activeCodeList.all : 0}}</span>，
-                                                未使用：<span>{{activeCodeList.unuse ? activeCodeList.unuse : 0}}</span>，
-                                                已激活：<span>{{activeCodeList.outdate ? activeCodeList.outdate : 0}}</span>，
-                                                禁用：<span>{{activeCodeList.deleted ? activeCodeList.deleted : 0}}</span>
+                                                激活码统计总数：<span class="num_show">{{activeCodeList.all ? activeCodeList.all : 0}}</span>，
+                                                未使用总数：<span class="num_show">{{activeCodeList.unuse ? activeCodeList.unuse : 0}}</span>，
+                                                已激活总数：<span class="num_show">{{activeCodeList.used ? activeCodeList.used : 0}}</span>，
+                                                已过期总数：<span class="num_show">{{activeCodeList.outdate ? activeCodeList.outdate : 0}}</span>，
+                                                已禁用总数：<span class="num_show">{{activeCodeList.deleted ? activeCodeList.deleted : 0}}</span>
                                             </p>
                                         </div>
                                         <el-button type="primary" size="small" @click="queryActivationForm('activationForm')">查询</el-button>
@@ -121,19 +137,30 @@
                                 v-loading="fullscreenAllLoading"
                                 element-loading-text="努力加载中..."
                                 element-loading-spinner="el-icon-loading"
-                                element-loading-background="rgba(255, 255, 255, .5)">
+                                element-loading-background="rgba(0, 0, 0, .3)">
                                     <el-table :data="activeTableList"  stripe style="width: 100%" border>
-                                        <el-table-column type="index" label="序号" width="50"> </el-table-column>
-                                        <el-table-column prop="id"  label="序列号" > </el-table-column>
-                                        <el-table-column prop="batchId" label="批次编号"> </el-table-column>
-                                        <el-table-column prop="batchName" label="批次标题"> </el-table-column>
+                                        <el-table-column label="序号" width="50">
+                                            <template slot-scope="scope">
+                                                {{ (activationForm.pageNumber - 1) * activationForm.pageSize + (scope.$index + 1)}}
+                                            </template>
+                                        </el-table-column>
+                                        <!-- <el-table-column prop="id"  label="ID" > </el-table-column> -->
+                                        <el-table-column prop="codeNo"  label="序列号" > </el-table-column>
                                         <el-table-column prop="activeCode" label="激活码"> </el-table-column>
+                                        <el-table-column prop="batchId" label="批次编号"> </el-table-column>
+                                        <el-table-column prop="batchName" label="批次标题">
+                                            <template slot-scope="scope">
+                                                <span :title="scope.row.batchName">{{ scope.row.batchName.length >15 ? scope.row.batchName.substring(0,15)+'...' : scope.row.batchName}}</span>
+                                            </template>
+                                        </el-table-column>
                                         <el-table-column prop="proName" label="产品"> </el-table-column>
-                                        <el-table-column prop="activeEndtime" label="激活时间" :formatter="formatter"> </el-table-column>
+                                        <el-table-column prop="proPrice" label="产品单价" :formatter="formatterPrice"> </el-table-column>
+                                        <el-table-column prop="createTime" label="激活码生成时间" :formatter="formatter"> </el-table-column>
+                                        <el-table-column prop="activeTime" label="激活时间" :formatter="formatter"> </el-table-column>
+                                        <el-table-column prop="activeEndtime" label="激活截止时间" :formatter="formatter"> </el-table-column>
                                         <el-table-column prop="activeStaffCodeName" label="会员昵称"> </el-table-column>
                                         <el-table-column prop="createChnlName" label="生成渠道"> </el-table-column>
                                         <el-table-column prop="bindChnlName" label="绑定渠道"> </el-table-column>
-                                        <el-table-column prop="proPrice" label="产品单价"> </el-table-column>
                                         <el-table-column prop="statusName" label="激活状态"> </el-table-column>
                                     </el-table>
                                 </div>
@@ -143,7 +170,7 @@
                                         @size-change="activationSizeChange"
                                         @current-change="activationCurrentChange"
                                         :current-page.sync="activationForm.pageNumber"
-                                        :page-sizes="[10,15, 20, 25, 50]"
+                                        :page-sizes="[10,20,30,40,50,100]"
                                         :page-size="activationForm.pageSize"
                                         layout="total, sizes, prev, pager, next, jumper"
                                         :total="activeTotal"
@@ -173,7 +200,42 @@ export default {
         CollapseTransition
     },
     data(){
+        var checkActiveCode  = (rule, value, callback) => {
+            const reg01 = /^[a-zA-Z0-9]{0,16}$/;
+            if(!reg01.test(value)){
+               callback(new Error('大小写字母或数字，最长16位'));
+            }else{
+                callback();
+            }
+        };
+        var checkBatchId  = (rule, value, callback) => {
+            const reg02 = /^[0-9]{0,6}$/;
+            if(!reg02.test(value)){
+               callback(new Error('只能输入数字，最长6位'));
+            }else{
+                callback();
+            }
+        };
+        var checkCodeNo  = (rule, value, callback) => {
+            const reg03 = /^[a-zA-Z0-9]{0,16}$/;
+            if(!reg03.test(value)){
+               callback(new Error('大小写字母或数字，最长16位'));
+            }else{
+                callback();
+            }
+        };
         return{
+            ruleschannel: {
+                activeCode: [
+                    { trigger: ['blur','change'],validator: checkActiveCode}
+                ],
+                batchId: [
+                    { trigger: ['blur','change'],validator: checkBatchId}
+                ],
+                codeNo: [
+                    { trigger: ['blur','change'],validator: checkCodeNo}
+                ],
+            },
             fullscreenLoading:true,
             showActiveFlag:false,//右侧激活码列表区域
             showBatch:false,
@@ -197,6 +259,7 @@ export default {
             activationForm:{
                 createChnl:'',//生成渠道id
                 id:'',//序列号
+                codeNo:'',//序列号
                 activeCode:'',//激活码
                 batchId:'',//批次编号
                 proCode:'',//chanpin
@@ -207,11 +270,18 @@ export default {
                 status:"",//状态
                 activeTimeStart:'',
                 activeTimeEnd:'',
+                activeTimeRange:'',
             },
             channelList:[],
             activeTableList:[],//激活码信息
             batchChannelList:[],
             activeCodeList:[],//激活码查询返回数据总数
+            // 日期范围控制
+            activeTimeOptions:{
+                disabledDate(time) {
+                    return time.getTime() > Date.now();
+                },
+            },
         }
     },
     created() {
@@ -267,11 +337,25 @@ export default {
             //         });
             //     }
             // }
+            else if(res.data.flag == '0' || res.data.length == 0){
+                _this.$confirm('数据获取出现异常，请重新登录系统！', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    closeOnClickModal:false,
+                    type: 'warning'
+                }).then(() => {
+                    _this.$store.dispatch('commitToken',{token:'',type:'2'});
+                    sessionStorage.clear();
+                    _this.$router.push({ name: 'login'});
+                }).catch(() => {
+                        
+                });
+            }
             else{
                 _this.$message({
                     showClose: true,
                     type: 'error',
-                    message: '获取数据失败，请刷新页面或联系运维人员！'
+                    message: '获取数据失败，请刷新页面或重新登录系统！'
                 });
             }
         }).catch(err => {
@@ -281,9 +365,19 @@ export default {
 
     },
     mounted() {
-        
     },
     methods: {
+        // 日期更改同时更改传参
+        changeTimeRange(item){
+            // console.log('ddddddddddddd',this.activationForm,item)
+            if(item){
+                this.activationForm.activeTimeStart  =  item[0];
+                this.activationForm.activeTimeEnd  =  item[1];
+            }else{
+                this.activationForm.activeTimeStart  =  "";
+                this.activationForm.activeTimeEnd  =  "";
+            }
+        },
         getBindChnl(item){
             // console.log('=======================选中及诶单的值===============',item)
             this.activationForm.bindChnl = item ? item[item.length-1] : '';
@@ -322,7 +416,7 @@ export default {
                 // console.log('===========渠道树点击查询激活码返回数据=========',res)
                 this.fullscreenAllLoading = false;
                 if(res.status == 200 && res.data.flag == '1'){
-                    if(res.data.page.count > 0){
+                    if(res.data.page.count >= 0){
                         _this.activeTableList = res.data.page.result;
                         _this.activeTotal = res.data.page.count;
                         this.activeCodeList = res.data.countNum;
@@ -335,18 +429,40 @@ export default {
                 _this.$message({
                     showClose: true,
                     type: 'error',
-                    message: '获取数据失败，请刷新页面或联系运维人员！'
+                    message: '获取数据失败，请刷新页面或重新登录系统！'
                 });
             });
         },
         // 时间格式化
-        formatter(row, column){
-            return tools.getFormatTime(row.activeEndtime)
+        formatter(row, column,cellValue,index){
+            if(column.property == "activeEndtime"){
+                return tools.dateFormat(cellValue,"yyyy-MM-dd")
+            }else{
+                return tools.dateFormat(cellValue,"yyyy-MM-dd hh:mm:ss")
+            }
+            
+        },
+        // 价格格式化
+        formatterPrice(row, column,cellValue,index){
+            return tools.numFormat(tools.accDiv(cellValue,100),2);
         },
         // 查询
         queryActivationForm(formName){
             // console.log(this.activationForm,'dddddddddddddddddd')
-            this.getActiveList();
+            let _this = this;
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                  _this.getActiveList();
+                } else {
+                    // _this.$message({
+                    //     showClose: true,
+                    //     type: 'error',
+                    //     message: '请正确填写相应信息！'
+                    // });
+                    return false;
+                }
+            });
+            
         },
         // 导出
         exportActivationForm(formName){
@@ -418,6 +534,7 @@ export default {
         resetForm(formName) {
             // console.log(formName,'fffffff重置fffffff')
             this.$refs[formName].resetFields();
+            this.changeTimeRange(this.activationForm.activeTimeRange)
         },
         // 递归方法
         getTreeData(data){
@@ -509,7 +626,7 @@ export default {
                 text-align: right;
                 margin-top: 20px;
                 .el-form-item__content{
-                    display: block;
+                    display: block !important;
                 }
                 .exportBtn{
 
@@ -518,10 +635,15 @@ export default {
                     display: inline-block;
                     float: left;
                     margin-left: 20px;
-                    background-color: #f7cbcb;
-                    color: #ff0000;
+                    // background-color: #f7cbcb;
+                    background-color: #e8f6ff;
+                    // color: #ff0000;
                     padding: 0 10px;
                     font-weight: bold;
+                    .num_show{
+                        color: #ff0000;
+                        font-size: 18px;
+                    }
                 }
             }
             .module_common{
@@ -550,8 +672,12 @@ export default {
 </style>
 <style lang="less">
     .system_base_wrap .el-table .el-table__header-wrapper thead tr th{
-        background-color:#f9f9f9;
+        background-color:#c4e3f2;
         padding: 6px 0;
+        border: none;
+    }
+    .system_base_wrap .el-table thead{
+        color: #333;
     }
     .module_query_form .el-form input{
         width: 185px !important;
@@ -589,7 +715,7 @@ export default {
     }
     .queryBtn_wrap{
         .el-form-item__content{
-            display: block;
+            display: block !important;
         }
         .exportBtn{
             float: left;

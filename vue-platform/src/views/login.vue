@@ -15,9 +15,9 @@
                 element-loading-spinner="el-icon-loading"
                 element-loading-background="rgba(255, 255, 255, 0)">
                     <h1 class="changeStyle">
-                        <span class="code_login" @click="changeStatus" :style="status ? '' : 'color:#1270d2'">账号登录</span>
+                        <span class="code_login" @click="changeStatus($event,'0')" :style="status ? '' : 'color:#1270d2'">账号登录</span>
                         <el-divider direction="vertical"></el-divider>
-                        <span class="quick_login" @click="changeStatus" :style="status ? 'color:#1270d2' : ''">快捷登录</span>
+                        <span class="quick_login" @click="changeStatus($event,'1')" :style="status ? 'color:#1270d2' : ''">快捷登录</span>
                     </h1>
                     <template >
                         <el-form :model="codeForm" :rules="rules" ref="codeForm" label-width="0" class="code_form" v-show="!status">
@@ -30,7 +30,7 @@
                             <el-form-item label="" prop="j_check_code">
                                 <el-input v-model="codeForm.j_check_code" placeholder="请输入验证码" class="checkCode_input" @keyup.enter.native="submitCodeForm('codeForm')"></el-input>
                                 <p class="checkcode_img_wrap">
-                                    <img :src="this.axios.defaults.baseURL+'captcha/CapthcaImage'" alt="" @click="changeCode" title="点击，更换验证码">
+                                    <img src="" alt="" @click="changeCode" title="点击，更换验证码">
                                 </p>
                             </el-form-item>
                             <el-form-item class="login_btn_wrap">
@@ -46,7 +46,7 @@
                            <el-form-item label="" prop="j_check_code">
                                 <el-input v-model="quickForm.j_check_code" placeholder="请输入验证码" class="checkCode_input" @keyup.enter.native="submitCodeForm('codeForm')"></el-input>
                                 <p class="checkcode_img_wrap">
-                                    <img :src="this.axios.defaults.baseURL+'captcha/CapthcaImage'" alt="" @click="changeCode" title="点击，更换验证码">
+                                    <img src="" alt="" @click="changeCode" title="点击，更换验证码">
                                 </p>
                             </el-form-item>
                             <el-form-item label="" prop="j_sms_code">
@@ -76,14 +76,14 @@ export default {
     data(){
         var checkUsername  = (rule, value, callback) => {
             if(!checkTool.p_regUsename.test(value)){
-               callback(new Error('用户名支持6-16位大小写英文数字'));
+               callback(new Error('用户名支持6-16位大小写字母、数字'));
             }else{
                 callback();
             }
         };
         var checkPwd  = (rule, value, callback) => {
             if(!checkTool.p_regPwd.test(value)){
-               callback(new Error('密码支持8位大小写英文数字'));
+               callback(new Error('8-20位，含有大小写字母或数字'));
             }else{
                 callback();
             }
@@ -117,7 +117,8 @@ export default {
             },
             rules: {
                 j_username: [
-                    { required: true, trigger: 'blur',validator: checkUsername },
+                    {required: true, message: '请输入用户名', trigger: 'blur' },
+                    // { required: true, trigger: 'blur',validator: checkUsername },
                 ],
                 j_password: [
                     { required: true,  trigger: 'blur',validator: checkPwd}
@@ -147,14 +148,20 @@ export default {
         this.changeCode();
     },
     mounted() {
-        
+        this.changeCode();
     },
     methods: {
-        changeStatus(){
-            this.changeCode();
-            this.status = !this.status;
-            var formName = this.status ? 'codeForm' : 'quickForm';
-            this.$refs[formName].resetFields();
+        changeStatus(e,type){
+            if(type == '0'){
+                // false
+                this.status = false;
+            }else{
+                this.status = true;
+            }
+            // this.changeCode();
+            // this.status = !this.status;
+            // var formName = this.status ? 'codeForm' : 'quickForm';
+            // this.$refs[formName].resetFields();
         },
         changeCode(event){
             $('.checkcode_img_wrap img').attr("src",this.axios.defaults.baseURL+"captcha/CapthcaImage?"+new Date().getTime())
@@ -208,33 +215,76 @@ export default {
                 //请求异常 0,
                 //请求成功1,
                 //表单验证失败 2,
-                //请求超时 3;
+                //请求超时 3; 
+                // isUppwd 0:no 1:yes 
                 if(res.data.ajaxResult == 1 || res.data.ajaxResult == '1'){
-                    if(res.data.values){
-                        // 有values
-                        _this.$store.dispatch('commitToken',{token:res.data.values,type:'1'});
-                        // let cksid = _this.$cookies.get('cksid');
-                        let key = _this.encryption.randomHexString(16);
-                        let loginInfo = {
-                            info: _this.encryption.Encrypt({j_username:data.j_username,token:res.data.values},key),
-                            key:key
-                        };
-                        // _this.$cookies.set('p_userinfo',{j_username:_this.codeForm.j_username,token:res.data.values}, 40 * 60 * 60);
-                        sessionStorage.setItem('loginInfo',loginInfo);
-                        _this.$router.push({ name: 'channel'});
-                        // _this.$message({
-                        //     showClose: true,
-                        //     type: 'success',
-                        //     message: '登录成功！'
+                    // 先判断 是否需要强制修改密码
+                    // if(res.data.values.isUppwd == '1'){
+                        // 需要强制修改密码
+                        // this.$alert('当前密码为系统生成密码，请重置密码！', '提示',{
+                        //     confirmButtonText: '确定',
+                        //     showClose:false,
+                        //     callback: action => {
+                        //        _this.$router.push({ name: 'changePwd',params:{
+                        //            j_username:data.j_username
+                        //        }});
+                        //     }
                         // });
-                    }else{
-                        this.changeCode();
-                        _this.$message({
-                            showClose: true,
-                            type: 'error',
-                            message: res.data.errorMessage[0].message
-                        });
-                    }
+                    //     this.$confirm('当前密码为系统生成密码，请重置密码！', '提示',{
+                    //         confirmButtonText: '确定',
+                    //         cancelButtonText: '暂不修改',
+                    //         showClose:false,
+                    //     }).then(()=>{
+                    //         // 确定
+                    //         _this.$router.push({ name: 'changePwd',params:{
+                    //             j_username:data.j_username
+                    //         }});
+                    //     }).catch((action) =>{
+                    //         if(res.data.values.sessionId){
+                    //             // 有values
+                    //             _this.$store.dispatch('commitToken',{token:res.data.values.sessionId,type:'1'});
+                    //             // let cksid = _this.$cookies.get('cksid');
+                    //             let key = _this.encryption.randomHexString(16);
+                    //             let loginInfo = {
+                    //                 info: _this.encryption.Encrypt({j_username:data.j_username,token:res.data.values.sessionId},key),
+                    //                 key:key
+                    //             };
+                    //             // _this.$cookies.set('p_userinfo',{j_username:_this.codeForm.j_username,token:res.data.values}, 40 * 60 * 60);
+                    //             sessionStorage.setItem('loginInfo',loginInfo);
+                    //             _this.$router.push({ name: 'channel'});
+                    //         }else{
+                    //             this.changeCode();
+                    //             _this.$message({
+                    //                 showClose: true,
+                    //                 type: 'error',
+                    //                 message: res.data.errorMessage[0].message
+                    //             });
+                    //         }
+                    //     });
+                    // }else{
+                        if(res.data.values.sessionId){
+                            // 有values
+                            _this.$store.dispatch('commitToken',{token:res.data.values.sessionId,type:'1'});
+                            // let cksid = _this.$cookies.get('cksid');
+                            let key = _this.encryption.randomHexString(16);
+                            let loginInfo = {
+                                info: _this.encryption.Encrypt({j_username:data.j_username,token:res.data.values.sessionId},key),
+                                key:key
+                            };
+                            // _this.$cookies.set('p_userinfo',{j_username:_this.codeForm.j_username,token:res.data.values}, 40 * 60 * 60);
+                            sessionStorage.setItem('loginInfo',loginInfo);
+                            sessionStorage.setItem('isUppwd',res.data.values.isUppwd);
+                            _this.$router.push({ name: 'channel'});
+                        }else{
+                            this.changeCode();
+                            _this.$message({
+                                showClose: true,
+                                type: 'error',
+                                message: res.data.errorMessage[0].message
+                            });
+                        }
+                    // }
+                    
                 }else if(res.data.ajaxResult == 0 || res.data.ajaxResult == '0'){
                     this.changeCode();
                     _this.$message({
@@ -300,7 +350,13 @@ export default {
     
     },
     watch: {
-        
+        status:{
+            handler(current,old){
+                this.changeCode();
+                var formName = this.status ? 'codeForm' : 'quickForm';
+                this.$refs[formName].resetFields();
+            },
+        },
     },
 }
 </script>
@@ -313,7 +369,7 @@ export default {
         .commwandh();
         min-width: 1100px;
         background: -webkit-linear-gradient(#0a0e19,#373e51);
-       .Login_container_wrap{
+        .Login_container_wrap{
             .commwandh();
             overflow-y: auto;
             overflow-x: hidden;

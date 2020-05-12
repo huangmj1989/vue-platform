@@ -87,16 +87,6 @@ export function remoteexport(data) {
 		}
 	});
 }
-// 时间戳
-export function getFormatTime(timestamp) {
-	var year=new Date(timestamp).getFullYear(); 
-	var month=new Date(timestamp).getMonth()+1; 
-	var date=new Date(timestamp).getDate(); 
-	var hour=new Date(timestamp).getHours(); 
-	var minute=new Date(timestamp).getMinutes(); 
-	var second=new Date(timestamp).getSeconds(); 
-	return year+"-"+month+"-"+date+" "+hour+":"+minute+":"+second; 
-}
 // 处理 获取产品
 export function getProductList() {
 	return axios({

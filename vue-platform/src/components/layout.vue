@@ -11,14 +11,14 @@
             </div>
             <!-- 左侧导航菜单 结束 -->
             <!-- 右侧主体内容 开始 -->
-            <div class="layout_main_content" :style="menuSlider ? 'margin-left:65px' : 'margin-left:250px'">
+            <div class="layout_main_content" :style="menuSlider ? 'margin-left:65px' : 'margin-left:220px'">
                 <div class="layout_router_wrap">
                     <router-view></router-view>
                 </div>
             </div>
             <!-- 右侧主体内容 结束 -->
             <!-- 页脚 start-->
-            <FooterOne></FooterOne>
+            <!-- <FooterOne></FooterOne> -->
             <!-- 页脚 end-->
         </div>
         <!-- 中间部分 结束 -->

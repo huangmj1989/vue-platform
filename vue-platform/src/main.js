@@ -11,13 +11,14 @@ import axios from 'axios'
 // 挂载原型
 Vue.prototype.axios = axios
 // 定义axios访问统一路径
-axios.defaults.baseURL = process.env.NODE_ENV == "production" ? Vue.prototype.global : 'apis';
+axios.defaults.baseURL = process.env.NODE_ENV == "production" ? Vue.prototype.global.globalBaseURL : 'apis';
 
 import VueCookies from 'vue-cookies'
 Vue.use(VueCookies)
 
 // 允许携带cookie
 axios.defaults.withCredentials=true
+axios.defaults.timeout = 200000;
 
 // 引入elementUI
 import ElementUI from 'element-ui';
@@ -57,7 +58,7 @@ axios.interceptors.request.use(
       config.headers.Authorization = token;
     }else{
       store.dispatch('commitToken',{token:'',type:'2'});
-      if(router.currentRoute.name != 'register' && router.currentRoute.name != 'login'){
+      if(router.currentRoute.name != 'changePwd' && router.currentRoute.name != 'login'){
         router.replace({
           name: 'login',
           // param: {redirect: router}
@@ -69,7 +70,7 @@ axios.interceptors.request.use(
     return Promise.reject(err);
   }
 );
-// http response 拦截器 异步请求 判断token 是否过期
+// // http response 拦截器 异步请求 判断token 是否过期
 axios.interceptors.response.use(
   response => {
     // console.log('=============返回请求=============',response)
@@ -87,7 +88,7 @@ axios.interceptors.response.use(
           sessionStorage.clear();
           router.push({ name: 'login'});
         }).catch(() => {
-            
+
         });
       }else{
         Vue.prototype.$message({
@@ -123,26 +124,30 @@ axios.interceptors.response.use(
     return Promise.reject(error)   // 返回接口返回的错误信息
   }
 );
-// 异步请求前判断请求的连接是否需要token
+// // 异步请求前判断请求的连接是否需要token
 router.beforeEach((to, from, next) => {
-  if (to.path === '/' || to.path === '/login' || to.path === '/register') {
+  if (to.path === '/' || to.path === '/login' || to.path === '/changePwd') {
     next();
   } else {
     let token = store.state.token;
-    // let cookieToken = $cookies.get('p_userinfo');
+    let cookieToken = sessionStorage.getItem("loginInfo");
     // console.log("我是浏览器本地缓存的token: "+cookieToken);
-    // if(cookieToken == null || cookieToken == 'null' || cookieToken == ''){
-    //   next('/login');
-    // }else{
+    if(cookieToken == null || cookieToken == 'null' || cookieToken == ''){
+      next({
+        path: '/login',                                               // 验证失败要跳转的页面
+      });
+    }else{
       if (token === 'null' || token === '') {
-        next('/login');
+        next({
+          path: '/login',
+        });
       } else {
         next();
       }
     }
-  // }
+  }
   if (to.matched.some(record => record.meta.requiresAuth)) {     // 哪些需要验证
-    if (!store.state.token) {                      // token存在条件   
+    if (!store.state.token) {                      // token存在条件
       next({
         path: '/login',                                               // 验证失败要跳转的页面
         param: {
